@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace PcmConvert
+namespace WavConvert
 {
     class Program
     {
@@ -31,10 +31,10 @@ namespace PcmConvert
 
             ushort channels = 1;
             ushort bitDepth = 32;
-            uint sampleRate = 11025; 
+            var outFormat = WavFormat.PCM;
+            uint sampleRate = 11025;
 
-            var wc = new WavConvert();
-            wc.Convert(inStream, outStream, channels, bitDepth, WavFormat.PCM, sampleRate);
+            WavConvert.Convert(inStream, outStream, channels, bitDepth, outFormat, sampleRate);
         }
     }
 }

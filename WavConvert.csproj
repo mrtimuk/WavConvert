@@ -7,8 +7,8 @@
     <ProjectGuid>{6A152CC8-3E01-4754-A3BB-4B7BA3082D04}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PcmConvert</RootNamespace>
-    <AssemblyName>PcmConvert</AssemblyName>
+    <RootNamespace>WavConvert</RootNamespace>
+    <AssemblyName>WavConvert</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

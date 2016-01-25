@@ -1,6 +1,6 @@
 ﻿// From MMREG.H
 
-namespace PcmConvert
+namespace WavConvert
 {
     public enum WavFormat : ushort
     {

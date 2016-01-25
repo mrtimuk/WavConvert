@@ -1,40 +1,94 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace WavConvert
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            if (args.Length == 0)
+            // Default arguments
+            ushort channels = 2;
+            ushort sampleRate = 11025;
+            ushort bitDepth = 16;
+            string inFile = null;
+            string outFile = null;
+
+            // Parse command line
+            foreach (var arg in args)
             {
-                args = new[] { 
-                    "e:\\Documents\\Visual Studio 2013\\Projects\\PcmConvert\\nervous.wav",
-                    "e:\\Documents\\Visual Studio 2013\\Projects\\PcmConvert\\out.wav" 
-                };
+                if (arg.StartsWith("-c"))
+                {
+                    channels = ushort.Parse(arg.Substring(2));
+                }
+                else if (arg.StartsWith("-b"))
+                {
+                    bitDepth = ushort.Parse(arg.Substring(2));
+                }
+                else if (arg.StartsWith("-s"))
+                {
+                    sampleRate = ushort.Parse(arg.Substring(2));
+                }
+                else if (inFile == null)
+                {
+                    inFile = arg;
+                }
+                else if (outFile == null)
+                {
+                    outFile = arg;
+                }
+                else
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Unexpected argument: {0}", arg);
+                    Usage();
+                    return;
+                }
             }
 
-            if (args.Length < 1)
+            // Input
+            if (inFile == null)
             {
-                Console.Write("\nUsage:\n  {0} <inputfile> [<outputfile>]\n", Environment.CommandLine);
+                Console.WriteLine();
+                Console.WriteLine("No input file specified!");
+                Usage();
                 return;
             }
+            var inStream = File.OpenRead(inFile);
 
-            var inStream = File.OpenRead(args[0]);
-
+            // Output
             Stream outStream = null;
-            if (args.Length == 2) 
+            if (outFile != null) 
             {
-                outStream = File.OpenWrite(args[1]);
+                outStream = File.OpenWrite(outFile);
             }
 
-            ushort channels = 1;
-            ushort bitDepth = 32;
-            var outFormat = WavFormat.PCM;
-            uint sampleRate = 11025;
+            // Do the convesion
+            WavConvert.Convert(
+                inStream, 
+                outStream, 
+                new WavFormat
+                {
+                    Format = WavFormatCode.Pcm,
+                    Channels = channels,
+                    BitDepth = bitDepth,
+                    SampleRate = sampleRate
+                });
+        }
 
-            WavConvert.Convert(inStream, outStream, channels, bitDepth, outFormat, sampleRate);
+        private static void Usage()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Usage:");
+            Console.WriteLine("  {0} <inputfile> [[outputOptions] <outputfile>]", 
+                Environment.CommandLine.Split('\\').Last());
+            Console.WriteLine();
+            Console.WriteLine("Output options:");
+            Console.WriteLine("  -b<bitDepth>        Number of bits per sample (8, 16, or 32). Default: -b16");
+            Console.WriteLine("  -s<sampleRate>      Sample rate in HZ eg: 8000, 11025, 22050. Default: -s11025");
+            Console.WriteLine("  -c<channels>        1 = mono, 2 = stereo. Default: -c2");
+            Console.WriteLine();
         }
     }
 }

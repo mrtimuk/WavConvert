@@ -83,14 +83,25 @@ namespace WavConvert
                 Console.WriteLine("   Format:      {0}", inFormat.Format);
                 Console.WriteLine("   Channels:    {0}", inFormat.ChannelString);
                 Console.WriteLine("   Bit depth:   {0} bit", inFormat.BitDepth);
-                Console.WriteLine("   Sample rate: {0} KHz", inFormat.SampleRate / 1000.0);
-                Console.WriteLine("   Bit rate:    {0} Kbs", inFormat.ByteRate * 8 / 1000);
+                Console.WriteLine("   Sample rate: {0} KHz", inFormat.SampleRate/1000.0);
+                Console.WriteLine("   Bit rate:    {0} Kbs", inFormat.ByteRate*8/1000);
                 Console.WriteLine();
                 Console.WriteLine("   File length: {0} bytes", fileLength);
                 Console.WriteLine("   CB Size:     {0} bytes", inCbSize);
                 Console.WriteLine("   Block align: {0} bytes", inFormat.BlockAlign);
                 Console.WriteLine("   Data:        {0} samples", inFormat.Samples);
                 Console.WriteLine();
+
+                while (inReader.PeekChar() == 'f')
+                {
+                    if (!ExpectAscii(inReader, "fact"))
+                    {
+                        Console.Error.WriteLine("Error: FACT header corrupted");
+                        return false;
+                    }
+                    var factLength = inReader.ReadInt32();
+                    inReader.BaseStream.Seek(factLength, SeekOrigin.Current); // Skip FACT
+                }
 
                 if (!ExpectAscii(inReader, "data"))
                 {

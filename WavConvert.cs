@@ -54,7 +54,7 @@ namespace WavConvert
             using (var inReader = new BinaryReader(inStream))
             {
                 var inFormat = new WavFormat();
-                
+
                 // Read header
                 ExpectAscii(inReader, "RIFF");
                 var fileLength = inReader.ReadUInt32() + 8;
@@ -240,7 +240,6 @@ namespace WavConvert
                         "Output file format {0} is not supported", outFormat.Format));
             }
         }
-
 
         // 8-bit unsigned integer samples
         private static double[] ReadFrameI8(BinaryReader inStream, ushort channels)

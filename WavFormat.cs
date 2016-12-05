@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace WavConvert
 {
@@ -54,7 +54,7 @@ namespace WavConvert
 
         public void SetDataLength(uint dataLengthBytes)
         {
-            Samples = BlockAlign == 0 ? 0 : dataLengthBytes / BlockAlign;
+           Samples = BlockAlign == 0 ? 0 : dataLengthBytes / BlockAlign;
         }
     }
 }

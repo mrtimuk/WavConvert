@@ -12,7 +12,13 @@ namespace WavConvert
         {
             var inFormat = new WavFormat();
 
-            ExpectAscii(inReader, "fmt ");
+            if (!ExpectAscii(inReader, "fmt "))
+            {
+                Console.Error.WriteLine("Error: fmt header not found");
+                inFormat.Error = true;
+                inCbSize = 0;
+                return inFormat;
+            }
             var fmtLength = inReader.ReadUInt32();
             inFormat.Format = (WavFormatCode)inReader.ReadUInt16();
             inFormat.Channels = inReader.ReadUInt16();
@@ -56,15 +62,21 @@ namespace WavConvert
                 var inFormat = new WavFormat();
 
                 // Read header
-                ExpectAscii(inReader, "RIFF");
+                if (!ExpectAscii(inReader, "RIFF"))
+                {
+                    Console.Error.WriteLine("Error: RIFF header not found");
+                    return false;
+                }
+
                 var fileLength = inReader.ReadUInt32() + 8;
-                ExpectAscii(inReader, "WAVE");
+                if (!ExpectAscii(inReader, "WAVE"))
+                {
+                    Console.Error.WriteLine("Error: WAVE header not found");
+                    return false;
+                }
 
                 ushort inCbSize;
                 inFormat = ReadWavFormat(inReader, out inCbSize);
-                
-                ExpectAscii(inReader, "data");
-                inFormat.SetDataLength(inReader.ReadUInt32());
 
                 Console.WriteLine();
                 Console.WriteLine("Input file:");
@@ -79,6 +91,14 @@ namespace WavConvert
                 Console.WriteLine("   Block align: {0} bytes", inFormat.BlockAlign);
                 Console.WriteLine("   Data:        {0} samples", inFormat.Samples);
                 Console.WriteLine();
+
+                if (!ExpectAscii(inReader, "data"))
+                {
+                    Console.Error.WriteLine("Error: DATA header not found");
+                    return false;
+                }
+
+                inFormat.SetDataLength(inReader.ReadUInt32());
 
                 if (inFormat.Error)
                 {
@@ -210,7 +230,7 @@ namespace WavConvert
             return frame;
         }
 
-        private static void WriteFrame(BinaryWriter outWriter, WavFormat outFormat, double[] frame)
+        private static void WriteFrame(BinaryWriter outWriter, WavFormat outFormat, IEnumerable<double> frame)
         {
             switch (outFormat.Format)
             {
@@ -348,16 +368,12 @@ namespace WavConvert
                 new[] { sample.First(), sample.Last() };
         }
 
-        private static void ExpectAscii(BinaryReader stream, string str)
+        private static bool ExpectAscii(BinaryReader stream, string str)
         {
             var expectedBytes = Encoding.ASCII.GetBytes(str);
             var actualBytes = new byte[str.Length];
             stream.Read(actualBytes, 0, actualBytes.Length);
-
-            if (!expectedBytes.SequenceEqual(actualBytes))
-            {
-                throw new FormatException("Expected '" + str + "'");
-            }
+            return expectedBytes.SequenceEqual(actualBytes);
         }
 
         private static void WriteAscii(BinaryWriter stream, string str)

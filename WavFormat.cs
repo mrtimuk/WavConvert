@@ -1,10 +1,11 @@
-﻿
-using System;
+﻿using System;
 
 namespace WavConvert
 {
     public class WavFormat
     {
+        public bool Error;
+
         public WavFormatCode Format;
         public ushort BitDepth;
         public ushort Channels;
@@ -53,7 +54,7 @@ namespace WavConvert
 
         public void SetDataLength(uint dataLengthBytes)
         {
-            Samples = dataLengthBytes/BlockAlign;
+            Samples = BlockAlign == 0 ? 0 : dataLengthBytes / BlockAlign;
         }
     }
 }

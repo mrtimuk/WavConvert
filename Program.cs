@@ -43,7 +43,7 @@ namespace WavConvert
                     Console.WriteLine();
                     Console.WriteLine("Unexpected argument: {0}", arg);
                     Usage();
-                    return;
+                    Environment.Exit(1);
                 }
             }
 
@@ -53,7 +53,7 @@ namespace WavConvert
                 Console.WriteLine();
                 Console.WriteLine("No input file specified!");
                 Usage();
-                return;
+                Environment.Exit(1);
             }
             var inStream = File.OpenRead(inFile);
 
@@ -65,16 +65,19 @@ namespace WavConvert
             }
 
             // Do the convesion
-            WavConvert.Convert(
-                inStream, 
-                outStream, 
+            if (!WavConvert.Convert(
+                inStream,
+                outStream,
                 new WavFormat
                 {
                     Format = WavFormatCode.Pcm,
                     Channels = channels,
                     BitDepth = bitDepth,
                     SampleRate = sampleRate
-                });
+                }))
+            {
+                Environment.Exit(1);
+            }
         }
 
         private static void Usage()

@@ -25,27 +25,28 @@ namespace WavConvert
 
             if (inFormat.BlockAlign != inBlockAlign)
             {
-                throw new FormatException(
-                    string.Format("Inconsistent block alignment: {0} channels of {1} bits is not {2} bytes",
+                inFormat.Error = true;
+
+                Console.Error.WriteLine("Error: Inconsistent block alignment: {0} channels of {1} bits is not {2} bytes",
                         inFormat.Channels,
                         inFormat.BitDepth,
-                        inBlockAlign));
+                        inBlockAlign);
             }
 
             if (inFormat.ByteRate != inByteRate)
             {
-                throw new FormatException(
-                    string.Format("Inconsistent sample rate: {0} channels of {1} bits at {2} KHz is not {3} KBps",
+                inFormat.Error = true;
+                Console.Error.WriteLine("Error: Inconsistent sample rate: {0} channels of {1} bits at {2} KHz is not {3} KBps",
                         inFormat.Channels,    
                         inFormat.BitDepth,
                         inFormat.SampleRate/1000,
-                        inByteRate/1000));
+                        inByteRate/1000);
             }
 
             return inFormat;
         }
 
-        public static void Convert(
+        public static bool Convert(
             Stream inStream, 
             Stream outStream, 
             WavFormat outFormat)
@@ -79,6 +80,11 @@ namespace WavConvert
                 Console.WriteLine("   Data:        {0} samples", inFormat.Samples);
                 Console.WriteLine();
 
+                if (inFormat.Error)
+                {
+                    return false;
+                }
+
                 switch (inFormat.Format)
                 {
                     case WavFormatCode.Pcm:
@@ -87,8 +93,9 @@ namespace WavConvert
                         break;
 
                     default:
-                        throw new FormatException(string.Format(
-                            "File format {0} is not supported. Only PCM, Extensible, and IEEE 574", inFormat.Format));
+                        Console.Error.WriteLine(
+                            "File format {0} is not supported. Only PCM, Extensible, and IEEE 574", inFormat.Format);
+                        return false;
                 }
 
                 outFormat.Samples = inFormat.Samples;
@@ -107,7 +114,7 @@ namespace WavConvert
                         WriteAscii(outWriter, "WAVE");
                         WriteAscii(outWriter, "fmt ");
                         outWriter.Write(16); // no CB
-                        outWriter.Write((ushort)outFormat.Format);
+                        outWriter.Write((ushort) outFormat.Format);
                         outWriter.Write(outFormat.Channels);
                         outWriter.Write(outFormat.SampleRate);
                         outWriter.Write(outFormat.ByteRate);
@@ -120,6 +127,7 @@ namespace WavConvert
                     }
                 }
             }
+            return true;
         }
 
         private static void MoveSamples(

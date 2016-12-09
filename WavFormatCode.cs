@@ -53,6 +53,7 @@ namespace WavConvert
         Dsat = 0x0066,
         DsatDisplay = 0x0067,
         Softsound = 0x0080,
+        G729A = 0x0083,
         RhetorexAdpcm = 0x0100,
         CreativeAdpcm = 0x0200,
         CreativeFastspeech8 = 0x0202,
